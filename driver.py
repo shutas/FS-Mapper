@@ -16,7 +16,16 @@ def reset_directory(dir_name):
 
 def init_database():
     """Initialize database by loading data from files in DATABASE_DIR"""
-    database_file_list = [file for file in os.listdir(DATABASE_DIR) if file.endswith(".txt")]
+    # Construct BLACKLIST
+    if "blacklist.txt" in os.listdir(DATABASE_DIR):
+        with open(os.path.join(DATABASE_DIR, "blacklist.txt")) as file_ptr:
+            line = file_ptr.readline().strip()
+            while line:
+                BLACKLIST.add(line)
+                line = file_ptr.readline().strip()
+
+    # Construct database
+    database_file_list = [file for file in os.listdir(DATABASE_DIR) if file.endswith(".txt") and file != "blacklist.txt"]
 
     for file in database_file_list:
         #print(file)
@@ -24,7 +33,10 @@ def init_database():
             line = file_ptr.readline()
             while line:
                 criteria, cell_code = line.strip().split("\t")
-                if criteria not in DATABASE:
+                line = file_ptr.readline()
+                if criteria in BLACKLIST:
+                    continue
+                elif criteria not in DATABASE:
                     DATABASE[criteria] = cell_code
                 else:
                     # Check criteria/cell_code pair is correct
@@ -34,7 +46,6 @@ def init_database():
                             raise ValueError(error_msg)
                     except ValueError as error:
                         raise
-                line = file_ptr.readline()
 
 
 def map_cell_codes():

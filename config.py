@@ -3,9 +3,14 @@
 import os
 
 # Global variables - adjust as necessary
-INPUT_DIR = os.path.join(".", "input")
-OUTPUT_DIR = os.path.join(".", "output")
-DATABASE_DIR = os.path.join(".", "database")
+INPUT_DIR_LAYERS = [".", "sample_input"]
+OUTPUT_DIR_LAYERS = [".", "sample_output"]
+DATABASE_DIR_LAYERS = [".", "sample_database"]
 
 # Global variables - don't change unless you know what you're doing
+INPUT_DIR = os.path.join(*INPUT_DIR_LAYERS)
+OUTPUT_DIR = os.path.join(*OUTPUT_DIR_LAYERS)
+DATABASE_DIR = os.path.join(*DATABASE_DIR_LAYERS)
+
 DATABASE = {} # Dictionary {"Criteria": "Cell Code"}
+BLACKLIST = set() # Set of criteria (str)
