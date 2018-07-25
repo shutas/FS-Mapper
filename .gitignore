@@ -1,0 +1,9 @@
+# Hidden files
+.DS_Store
+.vscode
+
+# Directory
+env/
+
+# Python generated files/directories
+__pycache__
