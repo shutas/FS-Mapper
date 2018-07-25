@@ -7,3 +7,4 @@ env/
 
 # Python generated files/directories
 __pycache__
+*.pyc
