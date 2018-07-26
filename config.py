@@ -14,3 +14,6 @@ DATABASE_DIR = os.path.join(*DATABASE_DIR_LAYERS)
 
 DATABASE = [] # List of ("regex pattern", "cell code")
 BLACKLIST = set() # Set of "regex pattern"
+
+MAPPED_COUNT = 0
+TOTAL_COUNT = 0

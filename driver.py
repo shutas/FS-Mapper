@@ -16,12 +16,23 @@ def reset_directory(dir_name):
 
 
 def escape_parenthesis(string):
-    string = string.replace("(", "\(")
-    string = string.replace(")", "\)")
-    string = string.replace("（", "\（")
-    string = string.replace("）", "\）")
+    paren_list = ["(", ")", "（", "）"]
+    escaped_paren_list = ["\(", "\)", "\（", "\）"]
+    
+    for i in range(4):
+        string = string.replace(paren_list[i], escaped_paren_list[i])
+    
     return string
 
+
+def standardize_numbers(string):
+    halfwidth_num_list = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    fullwidth_num_list = ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"]
+
+    for i in range(10):
+        string = string.replace(fullwidth_num_list[i], halfwidth_num_list[i])
+
+    return string
 
 def regexify():
     """Turn all criteria in database files as regular expressions."""
@@ -39,14 +50,16 @@ def regexify():
                     criteria, cell_code = line.split("\t")
                     #print("criteria:", criteria)
                     #print("type of criteria:", type(criteria))
-                    f2.write("^" + escape_parenthesis(criteria) + "$" + "\t" + cell_code + "\n")
+                    criteria = escape_parenthesis(standardize_numbers(criteria))
+                    f2.write("^" + criteria + "$" + "\t" + cell_code + "\n")
                     line = f1.readline().strip()
 
     with open(os.path.join(DATABASE_DIR, "blacklist.txt"), encoding="utf-16") as f3:
         with open(os.path.join(DATABASE_DIR, "REGEX_blacklist.txt"), encoding="utf-16", mode="a+") as f4:
             line = f3.readline().strip()
             while line:
-                f4.write("^" + escape_parenthesis(line) + "$" + "\n")
+                line = escape_parenthesis(standardize_numbers(line))
+                f4.write("^" + line + "$" + "\n")
                 line = f3.readline().strip()
 
 def in_blacklist(string, blacklist):
@@ -71,6 +84,7 @@ def init_database():
         with open(os.path.join(DATABASE_DIR, "blacklist.txt"), encoding="utf-16") as file_ptr:
             line = file_ptr.readline().strip()
             while line:
+                line = standardize_numbers(line)
                 BLACKLIST.add(line)
                 line = file_ptr.readline().strip()
 
@@ -84,6 +98,7 @@ def init_database():
             while line:
                 #print("line:", line)
                 criteria, cell_code = line.strip().split("\t")
+                criteria = standardize_numbers(criteria)
                 line = file_ptr.readline().strip()
                 if in_blacklist(criteria, BLACKLIST):
                     continue
@@ -106,6 +121,8 @@ def init_database():
 
 def map_cell_codes():
     """Map cell codes for all lines in files in INPUT_DIR."""
+    global TOTAL_COUNT
+    global MAPPED_COUNT
     file_list = [file for file in os.listdir(INPUT_DIR) if file.endswith(".txt")]
 
     for file in file_list:
@@ -115,19 +132,26 @@ def map_cell_codes():
                 line = input_file_ptr.readline().strip()
                 while line:
                     criteria, amount = line.strip().split("\t")
+                    criteria = standardize_numbers(criteria)
                     #print("criteria:", criteria, "amount:", amount)
                     cell_code = lookup_database(criteria, DATABASE)
                     if cell_code:
                         #print("Yup")
                         output_file_ptr.write(criteria + "\t" + amount + "\t" + cell_code + "\n")
+                        MAPPED_COUNT += 1
+                        TOTAL_COUNT += 1
+                        #total = total + 1
                     else:
                         #print("Nope")
                         output_file_ptr.write(criteria + "\t" + amount + "\n")
+                        TOTAL_COUNT += 1
+                        print(criteria)
                     line = input_file_ptr.readline().strip()
 
 
 def main():
     """Driver's main program."""
+
     # Set up environment
     setup_env()
 
@@ -143,8 +167,11 @@ def main():
     # Process input files
     map_cell_codes()
 
-    print("DATABASE:", DATABASE)
-    print("BLACKLIST:", BLACKLIST)
+    #print("DATABASE:", DATABASE)
+    #print("BLACKLIST:", BLACKLIST)
+    #print("LOOK HERE:", TOTAL_COUNT)
+
+    print("Mapped: ", MAPPED_COUNT/TOTAL_COUNT * 100, "%")
 
 if __name__ == "__main__":
     main()
