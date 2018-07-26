@@ -12,5 +12,5 @@ INPUT_DIR = os.path.join(*INPUT_DIR_LAYERS)
 OUTPUT_DIR = os.path.join(*OUTPUT_DIR_LAYERS)
 DATABASE_DIR = os.path.join(*DATABASE_DIR_LAYERS)
 
-DATABASE = {} # Dictionary {"Criteria": "Cell Code"}
-BLACKLIST = set() # Set of criteria (str)
+DATABASE = [] # List of ("regex pattern", "cell code")
+BLACKLIST = set() # Set of "regex pattern"
