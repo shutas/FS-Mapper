@@ -3,10 +3,6 @@
 import os
 
 # Global variables - adjust as necessary
-"""INPUT_DIR_LAYERS = [".", "sample_input"]
-OUTPUT_DIR_LAYERS = [".", "sample_output"]
-DATABASE_DIR_LAYERS = [".", "sample_database"]"""
-
 INPUT_DIR_LAYERS = [".", "input"]
 OUTPUT_DIR_LAYERS = [".", "output"]
 DATABASE_DIR_LAYERS = [".", "database"]

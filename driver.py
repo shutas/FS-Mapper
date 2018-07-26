@@ -48,7 +48,7 @@ def in_blacklist(string, blacklist):
 
 def lookup_database(string, database):
     for pattern, cell_code in database:
-        print("pattern:", pattern, "|", "cell_code", cell_code)
+        #print("pattern:", pattern, "|", "cell_code", cell_code)
         if re.search(pattern, string):
             return cell_code
     return ""
@@ -88,10 +88,10 @@ def init_database():
                     except ValueError as error:
                         raise'''
                     if lookup_database(criteria, DATABASE) != cell_code:
-                            error_msg = "Conflicting cell code for " + criteria + " in " + file + "\n" +\
-                            "            Tried to encode " + criteria + " as " + cell_code + "\n" +\
-                            "            But " + criteria + " is already registered as " + lookup_database(criteria, DATABASE)
-                            raise ValueError(error_msg)
+                        error_msg = "Conflicting cell code for " + criteria + " in " + file + "\n" +\
+                        "            Tried to encode " + criteria + " as " + cell_code + "\n" +\
+                        "            But " + criteria + " is already registered as " + lookup_database(criteria, DATABASE)
+                        raise ValueError(error_msg)
 
 
 def map_cell_codes():
@@ -105,10 +105,13 @@ def map_cell_codes():
                 line = input_file_ptr.readline()
                 while line:
                     criteria, amount = line.strip().split("\t")
+                    print("criteria:", criteria, "amount:", amount)
                     cell_code = lookup_database(criteria, DATABASE)
                     if cell_code:
+                        print("Yup")
                         output_file_ptr.write(criteria + "\t" + amount + "\t" + cell_code + "\n")
                     else:
+                        print("Nope")
                         output_file_ptr.write(criteria + "\t" + amount + "\n")
                     line = input_file_ptr.readline()
 
