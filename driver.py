@@ -15,6 +15,30 @@ def reset_directory(dir_name):
         os.remove(file)
 
 
+def regexify():
+    """Turn all criteria in database files as regular expressions."""
+    regex_file_list = [file for file in os.listdir(DATABASE_DIR) if file.startswith("REGEX_") and file.endswith(".txt")]
+    for file in regex_file_list:
+        os.remove(os.path.join(DATABASE_DIR, file))
+
+
+    file_list = [file for file in os.listdir(DATABASE_DIR) if file.endswith(".txt") and file != "blacklist.txt"]
+    for file in file_list:
+        with open(os.path.join(DATABASE_DIR, file), encoding="utf-16") as f1:
+            with open(os.path.join(DATABASE_DIR, "REGEX_" + file), encoding="utf-16", mode="a+") as f2:
+                line = f1.readline()
+                while line:
+                    criteria, cell_code = line.split("\t")
+                    f2.write("^" + criteria + "$" + "\t" + cell_code)
+                    line = f1.readline()
+
+    with open(os.path.join(DATABASE_DIR, "blacklist.txt"), encoding="utf-16") as f3:
+        with open(os.path.join(DATABASE_DIR, "REGEX_blacklist.txt"), encoding="utf-16", mode="a+") as f4:
+            line = f3.readline()
+            while line:
+                f4.write("^" + line + "$")
+                line = f3.readline()
+
 def in_blacklist(string, blacklist):
     for pattern in blacklist:
         if re.search(pattern, string):
@@ -24,6 +48,7 @@ def in_blacklist(string, blacklist):
 
 def lookup_database(string, database):
     for pattern, cell_code in database:
+        print("pattern:", pattern, "|", "cell_code", cell_code)
         if re.search(pattern, string):
             return cell_code
     return ""
@@ -33,20 +58,21 @@ def init_database():
     """Initialize database by loading data from files in DATABASE_DIR"""
     # Construct BLACKLIST
     if "blacklist.txt" in os.listdir(DATABASE_DIR):
-        with open(os.path.join(DATABASE_DIR, "blacklist.txt")) as file_ptr:
+        with open(os.path.join(DATABASE_DIR, "blacklist.txt"), encoding="utf-16") as file_ptr:
             line = file_ptr.readline().strip()
             while line:
                 BLACKLIST.add(line)
                 line = file_ptr.readline().strip()
 
     # Construct database
-    database_file_list = [file for file in os.listdir(DATABASE_DIR) if file.endswith(".txt") and file != "blacklist.txt"]
+    database_file_list = [file for file in os.listdir(DATABASE_DIR) if file.startswith("REGEX_") and file.endswith(".txt") and file != "REGEX_blacklist.txt"]
 
     for file in database_file_list:
         #print(file)
         with open(os.path.join(DATABASE_DIR, file), encoding="utf-16") as file_ptr:
             line = file_ptr.readline()
             while line:
+                #print("line:", line)
                 criteria, cell_code = line.strip().split("\t")
                 line = file_ptr.readline()
                 if in_blacklist(criteria, BLACKLIST):
@@ -62,7 +88,9 @@ def init_database():
                     except ValueError as error:
                         raise'''
                     if lookup_database(criteria, DATABASE) != cell_code:
-                            error_msg = "Conflicting cell code for " + criteria
+                            error_msg = "Conflicting cell code for " + criteria + " in " + file + "\n" +\
+                            "            Tried to encode " + criteria + " as " + cell_code + "\n" +\
+                            "            But " + criteria + " is already registered as " + lookup_database(criteria, DATABASE)
                             raise ValueError(error_msg)
 
 
@@ -92,6 +120,9 @@ def main():
 
     # Clean output directory
     reset_directory(OUTPUT_DIR)
+
+    # Preprocess database files
+    regexify()
 
     # Load database
     init_database()

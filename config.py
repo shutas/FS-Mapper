@@ -3,9 +3,13 @@
 import os
 
 # Global variables - adjust as necessary
-INPUT_DIR_LAYERS = [".", "sample_input"]
+"""INPUT_DIR_LAYERS = [".", "sample_input"]
 OUTPUT_DIR_LAYERS = [".", "sample_output"]
-DATABASE_DIR_LAYERS = [".", "sample_database"]
+DATABASE_DIR_LAYERS = [".", "sample_database"]"""
+
+INPUT_DIR_LAYERS = [".", "input"]
+OUTPUT_DIR_LAYERS = [".", "output"]
+DATABASE_DIR_LAYERS = [".", "database"]
 
 # Global variables - don't change unless you know what you're doing
 INPUT_DIR = os.path.join(*INPUT_DIR_LAYERS)
