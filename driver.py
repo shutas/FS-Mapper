@@ -15,6 +15,14 @@ def reset_directory(dir_name):
         os.remove(file)
 
 
+def escape_parenthesis(string):
+    string = string.replace("(", "\(")
+    string = string.replace(")", "\)")
+    string = string.replace("（", "\（")
+    string = string.replace("）", "\）")
+    return string
+
+
 def regexify():
     """Turn all criteria in database files as regular expressions."""
     regex_file_list = [file for file in os.listdir(DATABASE_DIR) if file.startswith("REGEX_") and file.endswith(".txt")]
@@ -26,18 +34,20 @@ def regexify():
     for file in file_list:
         with open(os.path.join(DATABASE_DIR, file), encoding="utf-16") as f1:
             with open(os.path.join(DATABASE_DIR, "REGEX_" + file), encoding="utf-16", mode="a+") as f2:
-                line = f1.readline()
+                line = f1.readline().strip()
                 while line:
                     criteria, cell_code = line.split("\t")
-                    f2.write("^" + criteria + "$" + "\t" + cell_code)
-                    line = f1.readline()
+                    #print("criteria:", criteria)
+                    #print("type of criteria:", type(criteria))
+                    f2.write("^" + escape_parenthesis(criteria) + "$" + "\t" + cell_code + "\n")
+                    line = f1.readline().strip()
 
     with open(os.path.join(DATABASE_DIR, "blacklist.txt"), encoding="utf-16") as f3:
         with open(os.path.join(DATABASE_DIR, "REGEX_blacklist.txt"), encoding="utf-16", mode="a+") as f4:
-            line = f3.readline()
+            line = f3.readline().strip()
             while line:
-                f4.write("^" + line + "$")
-                line = f3.readline()
+                f4.write("^" + escape_parenthesis(line) + "$" + "\n")
+                line = f3.readline().strip()
 
 def in_blacklist(string, blacklist):
     for pattern in blacklist:
@@ -70,11 +80,11 @@ def init_database():
     for file in database_file_list:
         #print(file)
         with open(os.path.join(DATABASE_DIR, file), encoding="utf-16") as file_ptr:
-            line = file_ptr.readline()
+            line = file_ptr.readline().strip()
             while line:
                 #print("line:", line)
                 criteria, cell_code = line.strip().split("\t")
-                line = file_ptr.readline()
+                line = file_ptr.readline().strip()
                 if in_blacklist(criteria, BLACKLIST):
                     continue
                 elif not lookup_database(criteria, DATABASE):
@@ -102,18 +112,18 @@ def map_cell_codes():
 
         with open(os.path.join(INPUT_DIR, file), encoding="utf-16") as input_file_ptr:
             with open(os.path.join(OUTPUT_DIR, "MAPPED_" + file), encoding="utf-16", mode="a+") as output_file_ptr:
-                line = input_file_ptr.readline()
+                line = input_file_ptr.readline().strip()
                 while line:
                     criteria, amount = line.strip().split("\t")
-                    print("criteria:", criteria, "amount:", amount)
+                    #print("criteria:", criteria, "amount:", amount)
                     cell_code = lookup_database(criteria, DATABASE)
                     if cell_code:
-                        print("Yup")
+                        #print("Yup")
                         output_file_ptr.write(criteria + "\t" + amount + "\t" + cell_code + "\n")
                     else:
-                        print("Nope")
+                        #print("Nope")
                         output_file_ptr.write(criteria + "\t" + amount + "\n")
-                    line = input_file_ptr.readline()
+                    line = input_file_ptr.readline().strip()
 
 
 def main():
